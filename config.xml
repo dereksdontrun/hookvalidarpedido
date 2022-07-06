@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>hookvalidarpedido</name>
+	<displayName><![CDATA[Procesos al validar pedido]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[El módulo contiene el hook hookActionValidateOrder. Se utiliza para procesos varios a realizar cuando entra un pedido a Prestashop. P.ej. meter al cliente a grupo Unicornio si procede.]]></description>
+	<author><![CDATA[Sergio]]></author>
+	<tab><![CDATA[administration]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
