@@ -221,7 +221,7 @@ class Hookvalidarpedido extends Module
 
     public function hookActionValidateOrder($params)
     {
-        //Queremos comprobar si el pedido entrante es válido (supuestamente si) y el número de pedidos que lleva el cliente en el año corriente. Si son más de dos se comprueba si pertenece al grupo Unicornio 2022 (o año en que estemos) y si no es así se le mete.
+        //Queremos comprobar si el pedido entrante es válido (supuestamente si) y el número de pedidos que lleva el cliente en el año corriente. Si hay al menos uno se comprueba si pertenece al grupo Unicornio 2022 (o año en que estemos) y si no es así se le mete, de modo que para el tercer pedido tendrá asignado el cupón de envío gratis.
         if ($params) {
             //sacamos el estado de entrada del pedido, queremos evitar Pedidos virtuales, tpv, amazon, worten, webservice, etc
             $orderStatus = $params['orderStatus'];
@@ -260,13 +260,13 @@ class Hookvalidarpedido extends Module
 
                             $pedidos_ytd = Db::getInstance()->getValue($sql_pedidos_ytd);
 
-                            //el pedido actual no está incluido en la consulta de arriba ya que no está creado del todo, de modo que si la consulta da resultado 2 o más, será válido. Queremos mínimo 3 contando el actual
+                            //el pedido actual no está incluido en la consulta de arriba ya que no está creado del todo, de modo que si la consulta da resultado 1 o más, será válido. Queremos mínimo 2 contando el actual
 
-                            if (is_null($pedidos_ytd) || $pedidos_ytd < 2) {
+                            if (is_null($pedidos_ytd) || $pedidos_ytd < 1) {
                                 return;
                             } 
 
-                            //tiene más de dos pedidos, comprobamos si el cliente pertenece al grupo "Unicornios YEAR" siendo year el año corriente. Para ello obtenemos el año actual y formamos la cadena para buscar el nombre del grupo y obtener el id del grupo. Los grupos se tendrán que ir actualizando cada año o lo crearé aquí si no lo encuentra
+                            //tiene al menos un pedido, comprobamos si el cliente pertenece al grupo "Unicornios YEAR" siendo year el año corriente. Para ello obtenemos el año actual y formamos la cadena para buscar el nombre del grupo y obtener el id del grupo. Los grupos se tendrán que ir actualizando cada año o lo crearé aquí si no lo encuentra
                             $nombre_grupo = 'Unicornios '.date("Y");
 
                             $group = Group::searchByName($nombre_grupo);
