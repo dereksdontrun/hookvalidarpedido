@@ -222,7 +222,6 @@ class Hookvalidarpedido extends Module
     public function hookActionValidateOrder($params)
     {
         //Queremos comprobar si el pedido entrante es válido (supuestamente si) y el número de pedidos que lleva el cliente en el año corriente. Si hay al menos uno se comprueba si pertenece al grupo Unicornio 2022 (o año en que estemos) y si no es así se le mete, de modo que para el tercer pedido tendrá asignado el cupón de envío gratis.
-        //09/08/2022 Además de asignarle el grupo, se le pone como grupo por defecto.
         if ($params) {
             //sacamos el estado de entrada del pedido, queremos evitar Pedidos virtuales, tpv, amazon, worten, webservice, etc
             $orderStatus = $params['orderStatus'];
@@ -282,9 +281,6 @@ class Hookvalidarpedido extends Module
                             if (!in_array($id_group, $customer_groups)) {
                                 //no pertenece al grupo, se lo asignamos. La función requiere un array con los ids de grupo
                                 $customer->addGroups(array($id_group));
-                                //09/08/2022 Además de asignarle el grupo, se le pone como grupo por defecto.
-                                $customer->id_default_group = $id_group;
-	                            $customer->save();
                             } else {
                                 return;
                             }
