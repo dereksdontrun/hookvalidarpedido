@@ -283,7 +283,9 @@ class Hookvalidarpedido extends Module
                                 //no pertenece al grupo, se lo asignamos. La función requiere un array con los ids de grupo
                                 $customer->addGroups(array($id_group));
                                 //09/08/2022 Además de asignarle el grupo, se le pone como grupo por defecto.
+                                //12/08/2022 Ponemos newsletter a 1 
                                 $customer->id_default_group = $id_group;
+                                $customer->newsletter = 1;
 	                            $customer->save();
                             } else {
                                 return;
