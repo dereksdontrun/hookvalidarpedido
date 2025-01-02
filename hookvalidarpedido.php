@@ -222,7 +222,7 @@ class Hookvalidarpedido extends Module
     public function hookActionValidateOrder($params)
     {
         //Queremos comprobar si el pedido entrante es válido (supuestamente si) y el número de pedidos que lleva el cliente en el año corriente. Si hay al menos uno se comprueba si pertenece al grupo Unicornio 2022 (o año en que estemos) y si no es así se le mete, de modo que para el tercer pedido tendrá asignado el cupón de envío gratis.
-        //09/08/2022 Además de asignarle el grupo, se le pone como grupo por defecto.
+        //09/08/2022 Además de asignarle el grupo, se le pone como grupo por defecto.        
         if ($params) {
             //sacamos el estado de entrada del pedido, queremos evitar Pedidos virtuales, tpv, amazon, worten, webservice, etc
             $orderStatus = $params['orderStatus'];
@@ -234,7 +234,9 @@ class Hookvalidarpedido extends Module
             $id_orderStatus = (int)$orderStatus->id;
 
             //solo aceptamos pedidos en Pago aceptado, Pago por transferencia pendiente y Canarias.
-            if ( ($id_orderStatus) && (($id_orderStatus == Configuration::get(PS_OS_PAYMENT)) || ($id_orderStatus == Configuration::get(PS_OS_BANKWIRE)) || ($id_orderStatus == Configuration::get(CLICKCANARIAS_STATE))) ) {
+            //24/11/2022 Añadimos los estados de entrada de pedido válidos Sequra en revisión y Esperando pago con Paypal
+            // 14/12/2022 Añado Esperando el pago con tarjeta de crédito y Esperando el pago con un método de pago local,
+            if ( ($id_orderStatus) && (($id_orderStatus == Configuration::get(PS_OS_PAYMENT)) || ($id_orderStatus == Configuration::get(PS_OS_BANKWIRE)) || ($id_orderStatus == Configuration::get(CLICKCANARIAS_STATE)) || ($id_orderStatus == Configuration::get(SEQURA_OS_NEEDS_REVIEW)) || ($id_orderStatus == Configuration::get(PS_CHECKOUT_STATE_WAITING_PAYPAL_PAYMENT)) || ($id_orderStatus == Configuration::get(PS_CHECKOUT_STATE_WAITING_CREDIT_CARD_PAYMENT)) || ($id_orderStatus == Configuration::get(PS_CHECKOUT_STATE_WAITING_LOCAL_PAYMENT))) ) {
 
                 //sacamos la info del pedido, para saber si viene de amazon, etc
                 $order = $params['order'];
@@ -242,16 +244,23 @@ class Hookvalidarpedido extends Module
                 if (Validate::isLoadedObject($order))
                 {            
                     //comprobamos que no sea de amazon, los pedidos amazon entran con module = amazon y payment = Amazon MarketPlace. Usamos stripos() que busca una cadena sin tener en cuenta mayúsculas o minúsculas. Tampoco contamos los de worten, que van por módulo mirakl
+                    //02/01/2025 quitamos también tiktok y webservice
                     $paymentMethod = $order->payment;
                     $module = $order->module;
                     
-                    if ((stripos($paymentMethod, 'amazon') === false ) && (stripos($module, 'amazon') === false ) && (stripos($paymentMethod, 'worten') === false ) && (stripos($module, 'mirakl') === false )) {
+                    if ((stripos($paymentMethod, 'amazon') === false ) && (stripos($module, 'amazon') === false ) && (stripos($paymentMethod, 'worten') === false ) && (stripos($module, 'mirakl') === false ) && (stripos($module, 'webservice') === false ) && (stripos($module, 'mirakl') === 'tiktok' )) {
 
                         //el pedido es correcto, comprobamos el cliente
                         $customer = $params['customer'];
                         if (Validate::isLoadedObject($customer))
                         {            
                             $id_customer = (int)$customer->id;
+
+                            //16/11/2022 comprobamos aquí también que el email de cliente no sea de amazon o worten
+                            $customer_email = $customer->email;
+                            if ((stripos($customer_email, 'marketplace.amazon') != false ) || (stripos($customer_email, 'mirakl') != false )) {
+                                return;
+                            }
 
                             //obtenemos el número de pedido realizados por el cliente en el transcurso del año, con una consulta que obtiene el year actual al vuelo
                             $sql_pedidos_ytd = 'SELECT COUNT(id_order) FROM lafrips_orders 
