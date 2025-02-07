@@ -248,7 +248,7 @@ class Hookvalidarpedido extends Module
                     $paymentMethod = $order->payment;
                     $module = $order->module;
                     
-                    if ((stripos($paymentMethod, 'amazon') === false ) && (stripos($module, 'amazon') === false ) && (stripos($paymentMethod, 'worten') === false ) && (stripos($module, 'mirakl') === false ) && (stripos($module, 'webservice') === false ) && (stripos($module, 'mirakl') === 'tiktok' )) {
+                    if ((stripos($paymentMethod, 'amazon') === false ) && (stripos($module, 'amazon') === false ) && (stripos($paymentMethod, 'worten') === false ) && (stripos($module, 'mirakl') === false ) && (stripos($module, 'webservice') === false ) && (stripos($module, 'tiktok') === false )) {
 
                         //el pedido es correcto, comprobamos el cliente
                         $customer = $params['customer'];
